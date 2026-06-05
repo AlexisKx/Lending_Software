@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Edit loan #{{ loan.pk }} · LoanDesk{% endblock %}
+
+{% block content %}
+{% include "_messages.html" %}
+
+<div class="max-w-3xl">
+  <h1 class="text-2xl font-semibold text-slate-900 mb-1">Edit loan #{{ loan.pk }}</h1>
+  <p class="text-sm text-slate-500 mb-6">{{ loan.borrower.name }} · changes are recorded in the audit trail below</p>
+
+  <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<p class="text-xs text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    <div class="flex justify-end gap-2 pt-2">
+      <a href="{% url 'loans:detail' loan.pk %}" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900">Cancel</a>
+      <button type="submit" class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2">Save changes</button>
+    </div>
+  </form>
+
+  <div class="mt-8 bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Audit trail ({{ audits.count }})</h2>
+    {% if audits %}
+    <ul class="divide-y divide-slate-100 text-sm">
+      {% for a in audits %}
+      <li class="py-3">
+        <p class="text-xs text-slate-500">{{ a.changed_at|date:"M j, Y · g:i A" }}</p>
+        <pre class="mt-1 text-xs bg-slate-50 border border-slate-200 rounded p-2 overflow-x-auto">{{ a.previous_values }}</pre>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-sm text-slate-400">No edits recorded yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  form input, form select { width: 100%; border: 1px solid rgb(203 213 225); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; background: white; }
+  form input:focus, form select:focus { outline: none; border-color: rgb(59 130 246); box-shadow: 0 0 0 2px rgb(191 219 254); }
+</style>
+{% endblock %}

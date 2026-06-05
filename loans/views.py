@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from borrowers.models import Borrower
 from borrowers.utils import waiver_recommendation
 
-from .forms import LoanRecordForm
+from .forms import LoanEditForm, LoanRecordForm
 from .models import Loan
 
 
@@ -38,6 +38,21 @@ def loan_detail(request, pk):
         "loans/detail.html",
         {"loan": loan, "payments": payments},
     )
+
+
+@login_required
+def loan_edit(request, pk):
+    loan = get_object_or_404(Loan, pk=pk)
+    if request.method == "POST":
+        form = LoanEditForm(request.POST, instance=loan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Loan #{loan.pk} updated. A new audit row was recorded.")
+            return redirect("loans:detail", pk=loan.pk)
+    else:
+        form = LoanEditForm(instance=loan)
+    audits = loan.audits.all()
+    return render(request, "loans/edit.html", {"form": form, "loan": loan, "audits": audits})
 
 
 @login_required

@@ -100,3 +100,15 @@ class LoanRecordForm(forms.Form):
             ComakerWaiver.objects.create(loan=loan, reason=data["waiver_reason"])
 
         return loan
+
+
+class LoanEditForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = [
+            "amount", "interest_rate", "term_months",
+            "advance_interest", "fees", "release_date", "status",
+        ]
+        widgets = {
+            "release_date": forms.DateInput(attrs={"type": "date"}),
+        }

@@ -5,4 +5,7 @@ __pycache__/
 .venv/
 venv/
 staticfiles/
+static/css/output.css
+.tailwind/
+backups/
 .DS_Store

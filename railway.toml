@@ -1,0 +1,16 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "gunicorn loandesk.wsgi --log-file -"
+healthcheckPath = "/accounts/login/"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Cron job (add as a separate Railway service or cron schedule in the UI):
+#   Command:  python manage.py flag_overdue
+#   Schedule: 0 6 * * *    (06:00 daily, Asia/Manila in TIME_ZONE)
+#
+# Nightly DB backup (separate cron service):
+#   Command:  ./scripts/backup.sh
+#   Schedule: 30 2 * * *   (02:30 daily)

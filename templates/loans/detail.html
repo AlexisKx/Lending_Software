@@ -12,12 +12,15 @@
       · Released {{ loan.release_date|date:"M j, Y" }}
     </p>
   </div>
-  <span class="text-xs font-medium px-3 py-1.5 rounded-full
-    {% if loan.status == 'PAID' %}bg-emerald-50 text-emerald-700
-    {% elif loan.status == 'OVERDUE' %}bg-red-50 text-red-700
-    {% else %}bg-blue-50 text-blue-700{% endif %}">
-    {{ loan.get_status_display }}
-  </span>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'loans:edit' loan.pk %}" class="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-md border border-slate-300 hover:bg-slate-50">Edit</a>
+    <span class="text-xs font-medium px-3 py-1.5 rounded-full
+      {% if loan.status == 'PAID' %}bg-emerald-50 text-emerald-700
+      {% elif loan.status == 'OVERDUE' %}bg-red-50 text-red-700
+      {% else %}bg-blue-50 text-blue-700{% endif %}">
+      {{ loan.get_status_display }}
+    </span>
+  </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

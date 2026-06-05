@@ -10,4 +10,5 @@ urlpatterns = [
     path("_compute_proceeds/", views.compute_proceeds, name="compute_proceeds"),
     path("_advisory/", views.borrower_advisory, name="advisory"),
     path("<int:pk>/", views.loan_detail, name="detail"),
+    path("<int:pk>/edit/", views.loan_edit, name="edit"),
 ]

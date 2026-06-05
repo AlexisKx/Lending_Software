@@ -1,22 +1,23 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}LoanDesk{% endblock %}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  {% if DEBUG %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: { colors: {
+          brand: { revenue: "#378ADD", interest: "#1D9E75", overdue: "#E24B4A", warn: "#FAC775" }
+        } } }
+      };
+    </script>
+  {% else %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  {% endif %}
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { revenue: "#378ADD", interest: "#1D9E75", overdue: "#E24B4A", warn: "#FAC775" }
-          }
-        }
-      }
-    };
-  </script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
   {% if user.is_authenticated %}
