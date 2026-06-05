@@ -13,8 +13,10 @@
         <th class="px-4 py-3 font-medium">Date</th>
         <th class="px-4 py-3 font-medium">Borrower</th>
         <th class="px-4 py-3 font-medium">Loan</th>
-        <th class="px-4 py-3 font-medium text-right">Amount</th>
-        <th class="px-4 py-3 font-medium text-right">Balance after</th>
+        <th class="px-4 py-3 font-medium text-right">Paid</th>
+        <th class="px-4 py-3 font-medium text-right">Interest</th>
+        <th class="px-4 py-3 font-medium text-right">Principal</th>
+        <th class="px-4 py-3 font-medium text-right">Principal after</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
@@ -22,18 +24,18 @@
       <tr class="hover:bg-slate-50">
         <td class="px-4 py-3">{{ p.date_paid|date:"M j, Y" }}</td>
         <td class="px-4 py-3">
-          <a href="{% url 'borrowers:detail' p.loan.borrower.pk %}" class="text-blue-600 hover:underline">
-            {{ p.loan.borrower.name }}
-          </a>
+          <a href="{% url 'borrowers:detail' p.loan.borrower.pk %}" class="text-blue-600 hover:underline">{{ p.loan.borrower.name }}</a>
         </td>
         <td class="px-4 py-3">
           <a href="{% url 'loans:detail' p.loan.pk %}" class="text-blue-600 hover:underline">#{{ p.loan.pk }}</a>
         </td>
         <td class="px-4 py-3 text-right font-medium">₱{{ p.amount|floatformat:2 }}</td>
-        <td class="px-4 py-3 text-right text-slate-600">₱{{ p.balance_after|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right text-slate-600">₱{{ p.interest_paid|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right text-slate-600">₱{{ p.principal_paid|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right text-slate-700">₱{{ p.principal_balance_after|floatformat:2 }}</td>
       </tr>
       {% empty %}
-      <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">No payments yet.</td></tr>
+      <tr><td colspan="7" class="px-4 py-10 text-center text-slate-400">No payments yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

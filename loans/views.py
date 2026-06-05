@@ -9,6 +9,7 @@ from borrowers.utils import waiver_recommendation
 
 from .forms import LoanEditForm, LoanRecordForm
 from .models import Loan
+from .utils import add_months
 
 
 def _to_decimal(value, default=Decimal("0")):
@@ -47,7 +48,8 @@ def loan_edit(request, pk):
         form = LoanEditForm(request.POST, instance=loan)
         if form.is_valid():
             form.save()
-            messages.success(request, f"Loan #{loan.pk} updated. A new audit row was recorded.")
+            loan.recompute_payments()
+            messages.success(request, f"Loan #{loan.pk} updated. Ledger recomputed; an audit row was recorded.")
             return redirect("loans:detail", pk=loan.pk)
     else:
         form = LoanEditForm(instance=loan)
@@ -86,17 +88,30 @@ def loan_record(request):
 
 @login_required
 def compute_proceeds(request):
-    """HTMX endpoint — returns the proceeds panel partial."""
+    """HTMX endpoint — returns the proceeds + first-month-interest panel.
+
+    Reducing-balance model: the term DOES NOT enter the math. We only display
+    the maturity date computed from term, for tracking purposes.
+    """
     amount = _to_decimal(request.POST.get("amount"))
     advance = _to_decimal(request.POST.get("advance_interest"))
     fees = _to_decimal(request.POST.get("fees"))
     rate = _to_decimal(request.POST.get("interest_rate"))
-    term = _to_decimal(request.POST.get("term_months"))
+
+    try:
+        term = int(request.POST.get("term_months") or 0)
+    except (TypeError, ValueError):
+        term = 0
+
+    from datetime import date as _date
+    try:
+        rd = _date.fromisoformat(request.POST.get("release_date") or "")
+    except ValueError:
+        rd = None
 
     net = amount - advance - fees
-    interest_total = amount * (rate / Decimal("100")) * term if term else Decimal("0")
-    total_repayable = amount + interest_total
-    monthly = (total_repayable / term) if term else Decimal("0")
+    first_month_interest = amount * (rate / Decimal("100"))
+    maturity = add_months(rd, term) if rd and term else None
 
     return render(
         request,
@@ -106,9 +121,9 @@ def compute_proceeds(request):
             "advance": advance,
             "fees": fees,
             "net": net,
-            "total_repayable": total_repayable,
-            "interest_total": interest_total,
-            "monthly": monthly,
+            "first_month_interest": first_month_interest,
+            "term": term,
+            "maturity": maturity,
         },
     )
 

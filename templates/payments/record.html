@@ -7,8 +7,30 @@
 <div class="max-w-xl">
   <h1 class="text-2xl font-semibold text-slate-900 mb-2">Record payment</h1>
   <p class="text-sm text-slate-500 mb-6">
-    Loan #{{ loan.pk }} · {{ loan.borrower.name }} · Outstanding
-    <span class="font-medium text-slate-900">₱{{ loan.outstanding_balance|floatformat:2 }}</span>
+    Loan #{{ loan.pk }} · {{ loan.borrower.name }} · {{ loan.interest_rate }}% / mo (reducing balance)
+  </p>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+    <div>
+      <p class="text-blue-700">Current principal</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ state.current_principal|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">Interest due now</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ state.accrued_interest_unpaid|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">Total due today</p>
+      <p class="text-lg font-bold text-blue-900">₱{{ state.total_due|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">Next month's interest</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ loan.monthly_interest_due|floatformat:2 }}</p>
+    </div>
+  </div>
+
+  <p class="text-xs text-slate-500 mb-3">
+    Payments are applied to accrued interest first; any excess reduces principal.
   </p>
 
   <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">

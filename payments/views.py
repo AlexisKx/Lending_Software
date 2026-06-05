@@ -17,6 +17,7 @@ def payment_list(request):
 @login_required
 def payment_record(request, loan_pk):
     loan = get_object_or_404(Loan.objects.select_related("borrower"), pk=loan_pk)
+    state = loan.state_as_of()
 
     if request.method == "POST":
         form = PaymentForm(request.POST)
@@ -24,9 +25,16 @@ def payment_record(request, loan_pk):
             payment = form.save(commit=False)
             payment.loan = loan
             payment.save()
+            loan.recompute_payments()
+            payment.refresh_from_db()
             messages.success(
                 request,
-                f"Recorded ₱{payment.amount} payment. Balance: ₱{payment.balance_after}.",
+                (
+                    f"Recorded ₱{payment.amount}. "
+                    f"Interest: ₱{payment.interest_paid} · "
+                    f"Principal: ₱{payment.principal_paid} · "
+                    f"Remaining principal: ₱{payment.principal_balance_after}."
+                ),
             )
             return redirect("loans:detail", pk=loan.pk)
     else:
@@ -35,5 +43,5 @@ def payment_record(request, loan_pk):
     return render(
         request,
         "payments/record.html",
-        {"form": form, "loan": loan},
+        {"form": form, "loan": loan, "state": state},
     )

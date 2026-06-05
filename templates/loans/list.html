@@ -25,9 +25,11 @@
       <tr>
         <th class="px-4 py-3 font-medium">#</th>
         <th class="px-4 py-3 font-medium">Borrower</th>
-        <th class="px-4 py-3 font-medium text-right">Amount</th>
-        <th class="px-4 py-3 font-medium text-right">Net proceeds</th>
+        <th class="px-4 py-3 font-medium text-right">Original</th>
+        <th class="px-4 py-3 font-medium text-right">Current principal</th>
+        <th class="px-4 py-3 font-medium text-right">Remaining</th>
         <th class="px-4 py-3 font-medium">Released</th>
+        <th class="px-4 py-3 font-medium">Maturity</th>
         <th class="px-4 py-3 font-medium">Status</th>
       </tr>
     </thead>
@@ -39,8 +41,10 @@
           <a href="{% url 'loans:detail' l.pk %}" class="text-blue-600 hover:underline font-medium">{{ l.borrower.name }}</a>
         </td>
         <td class="px-4 py-3 text-right">₱{{ l.amount|floatformat:2 }}</td>
-        <td class="px-4 py-3 text-right">₱{{ l.net_proceeds|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right">₱{{ l.current_principal|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right font-medium">₱{{ l.outstanding_balance|floatformat:2 }}</td>
         <td class="px-4 py-3 text-slate-600">{{ l.release_date|date:"M j, Y" }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ l.maturity_date|date:"M j, Y" }}</td>
         <td class="px-4 py-3">
           <span class="text-xs font-medium px-2 py-1 rounded-full
             {% if l.status == 'PAID' %}bg-emerald-50 text-emerald-700
@@ -51,7 +55,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="6" class="px-4 py-10 text-center text-slate-400">No loans yet.</td></tr>
+      <tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">No loans yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
