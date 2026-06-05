@@ -2,8 +2,47 @@
 {% block title %}Borrowers · LoanDesk{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-semibold text-slate-900 mb-6">Borrowers</h1>
-<div class="bg-white border border-slate-200 rounded-xl p-10 text-center text-slate-500">
-  Borrower management arrives in phase 2.
+{% include "_messages.html" %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold text-slate-900">Borrowers</h1>
+  <a href="{% url 'borrowers:create' %}"
+     class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2">
+    + New borrower
+  </a>
+</div>
+
+<form method="get" class="mb-4">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search by name or contact…"
+         class="w-full max-w-md rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+</form>
+
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-slate-600 text-left">
+      <tr>
+        <th class="px-4 py-3 font-medium">Name</th>
+        <th class="px-4 py-3 font-medium">Contact</th>
+        <th class="px-4 py-3 font-medium">Source of income</th>
+        <th class="px-4 py-3 font-medium">Loans</th>
+        <th class="px-4 py-3 font-medium">Added</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for b in borrowers %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">
+          <a href="{% url 'borrowers:detail' b.pk %}" class="text-blue-600 hover:underline font-medium">{{ b.name }}</a>
+        </td>
+        <td class="px-4 py-3 text-slate-600">{{ b.contact|default:"—" }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ b.source_of_income|default:"—" }}</td>
+        <td class="px-4 py-3 text-slate-600">{{ b.loans.count }}</td>
+        <td class="px-4 py-3 text-slate-500">{{ b.created_at|date:"M j, Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">No borrowers yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% if advisory %}
+{% with status=advisory.0 text=advisory.1 %}
+<span class="text-xs font-medium px-2.5 py-1 rounded-full
+  {% if status == 'may_waive' %}bg-emerald-50 text-emerald-700
+  {% elif status == 'strongly_recommend' %}bg-red-50 text-red-700
+  {% else %}bg-amber-50 text-amber-800{% endif %}">
+  {{ text }}
+</span>
+{% endwith %}
+{% endif %}

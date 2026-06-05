@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Loan #{{ loan.pk }} · LoanDesk{% endblock %}
+
+{% block content %}
+{% include "_messages.html" %}
+
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-900">Loan #{{ loan.pk }}</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      <a href="{% url 'borrowers:detail' loan.borrower.pk %}" class="text-blue-600 hover:underline">{{ loan.borrower.name }}</a>
+      · Released {{ loan.release_date|date:"M j, Y" }}
+    </p>
+  </div>
+  <span class="text-xs font-medium px-3 py-1.5 rounded-full
+    {% if loan.status == 'PAID' %}bg-emerald-50 text-emerald-700
+    {% elif loan.status == 'OVERDUE' %}bg-red-50 text-red-700
+    {% else %}bg-blue-50 text-blue-700{% endif %}">
+    {{ loan.get_status_display }}
+  </span>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Principal</p>
+    <p class="text-2xl font-semibold text-slate-900 mt-1">₱{{ loan.amount|floatformat:2 }}</p>
+    <p class="text-xs text-slate-500 mt-2">Net proceeds: ₱{{ loan.net_proceeds|floatformat:2 }}</p>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Total repayable</p>
+    <p class="text-2xl font-semibold text-slate-900 mt-1">₱{{ loan.total_repayable|floatformat:2 }}</p>
+    <p class="text-xs text-slate-500 mt-2">{{ loan.interest_rate }}% / mo × {{ loan.term_months }} mo</p>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Outstanding</p>
+    <p class="text-2xl font-semibold text-slate-900 mt-1">₱{{ loan.outstanding_balance|floatformat:2 }}</p>
+    <p class="text-xs text-slate-500 mt-2">Paid: ₱{{ loan.total_paid|floatformat:2 }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Co-maker</h2>
+    {% if loan.comaker %}
+      <dl class="text-sm space-y-2">
+        <div><dt class="text-slate-500">Name</dt><dd>{{ loan.comaker.name }}</dd></div>
+        <div><dt class="text-slate-500">Contact</dt><dd>{{ loan.comaker.contact|default:"—" }}</dd></div>
+        <div><dt class="text-slate-500">Relationship</dt><dd>{{ loan.comaker.relationship|default:"—" }}</dd></div>
+      </dl>
+    {% elif loan.waiver %}
+      <p class="text-sm text-slate-700">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 mr-2">Waived</span>
+        {{ loan.waiver.reason }}
+      </p>
+    {% else %}
+      <p class="text-sm text-slate-400">None on file.</p>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Payments ({{ payments.count }})</h2>
+      {% if loan.status != 'PAID' %}
+      <a href="{% url 'payments:record' loan.pk %}" class="text-sm text-blue-600 hover:underline">+ Record payment</a>
+      {% endif %}
+    </div>
+    {% if payments %}
+    <ul class="divide-y divide-slate-100 text-sm">
+      {% for p in payments %}
+      <li class="py-2 flex justify-between">
+        <span class="text-slate-700">{{ p.date_paid|date:"M j, Y" }}</span>
+        <span class="font-medium text-slate-900">₱{{ p.amount|floatformat:2 }}</span>
+        <span class="text-slate-500">Balance: ₱{{ p.balance_after|floatformat:2 }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-sm text-slate-400">No payments recorded yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

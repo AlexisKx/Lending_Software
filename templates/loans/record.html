@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Record loan · LoanDesk{% endblock %}
+
+{% block content %}
+{% include "_messages.html" %}
+
+<h1 class="text-2xl font-semibold text-slate-900 mb-6">Record loan</h1>
+
+<form method="post" class="max-w-3xl space-y-6">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <!-- Section 1: Borrower -->
+  <section class="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Borrower</h2>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Select existing borrower</label>
+      {{ form.existing_borrower }}
+      {% if form.existing_borrower.errors %}<p class="text-xs text-red-600 mt-1">{{ form.existing_borrower.errors|join:", " }}</p>{% endif %}
+      <p class="text-xs text-slate-500 mt-1">— or fill out the fields below to create a new borrower —</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+        {{ form.borrower_name }}
+        {% if form.borrower_name.errors %}<p class="text-xs text-red-600 mt-1">{{ form.borrower_name.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Contact</label>
+        {{ form.borrower_contact }}
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+        {{ form.borrower_address }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Valid ID</label>
+        {{ form.borrower_valid_id }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Source of income</label>
+        {{ form.borrower_source_of_income }}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Loan details -->
+  <section class="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Loan details</h2>
+
+    <div id="loan-fields"
+         hx-post="{% url 'loans:compute_proceeds' %}"
+         hx-trigger="input changed delay:200ms from:input"
+         hx-target="#proceeds-panel"
+         hx-include="this"
+         class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Amount (₱)</label>
+        {{ form.amount }}
+        {% if form.amount.errors %}<p class="text-xs text-red-600 mt-1">{{ form.amount.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Monthly interest rate (%)</label>
+        {{ form.interest_rate }}
+        {% if form.interest_rate.errors %}<p class="text-xs text-red-600 mt-1">{{ form.interest_rate.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Term (months)</label>
+        {{ form.term_months }}
+        {% if form.term_months.errors %}<p class="text-xs text-red-600 mt-1">{{ form.term_months.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Release date</label>
+        {{ form.release_date }}
+        {% if form.release_date.errors %}<p class="text-xs text-red-600 mt-1">{{ form.release_date.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Advance interest (₱)</label>
+        {{ form.advance_interest }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Fees (₱)</label>
+        {{ form.fees }}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Co-maker / waiver -->
+  <section class="bg-white border border-slate-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Co-maker</h2>
+      {% if advisory %}
+        {% with status=advisory.0 text=advisory.1 %}
+        <span class="text-xs font-medium px-2.5 py-1 rounded-full
+          {% if status == 'may_waive' %}bg-emerald-50 text-emerald-700
+          {% elif status == 'strongly_recommend' %}bg-red-50 text-red-700
+          {% else %}bg-amber-50 text-amber-800{% endif %}">
+          {{ text }}
+        </span>
+        {% endwith %}
+      {% endif %}
+    </div>
+
+    <div class="space-y-2 mb-4" id="comaker-mode">
+      {% for radio in form.has_comaker %}
+        <label class="flex items-center gap-2 text-sm text-slate-700">
+          {{ radio.tag }}
+          <span>{{ radio.choice_label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Co-maker name</label>
+        {{ form.comaker_name }}
+        {% if form.comaker_name.errors %}<p class="text-xs text-red-600 mt-1">{{ form.comaker_name.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Contact</label>
+        {{ form.comaker_contact }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Relationship</label>
+        {{ form.comaker_relationship }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Source of income</label>
+        {{ form.comaker_source_of_income }}
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Waiver reason (if waiving)</label>
+        {{ form.waiver_reason }}
+        {% if form.waiver_reason.errors %}<p class="text-xs text-red-600 mt-1">{{ form.waiver_reason.errors|join:", " }}</p>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Net proceeds panel -->
+  <section id="proceeds-panel">
+    {% include "loans/_proceeds.html" with amount=0 advance=0 fees=0 net=0 total_repayable=0 interest_total=0 monthly=0 %}
+  </section>
+
+  <div class="flex justify-end gap-2">
+    <a href="{% url 'loans:list' %}" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900">Cancel</a>
+    <button type="submit" class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5">
+      Save &amp; release
+    </button>
+  </div>
+</form>
+
+<style>
+  form input[type=text], form input[type=number], form input[type=date], form input[type=email], form select, form textarea {
+    width: 100%; border: 1px solid rgb(203 213 225); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; background: white;
+  }
+  form input:focus, form select:focus, form textarea:focus { outline: none; border-color: rgb(59 130 246); box-shadow: 0 0 0 2px rgb(191 219 254); }
+</style>
+{% endblock %}

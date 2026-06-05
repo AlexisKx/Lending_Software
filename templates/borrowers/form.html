@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'edit' %}Edit borrower{% else %}New borrower{% endif %} · LoanDesk{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-semibold text-slate-900 mb-6">
+    {% if mode == 'edit' %}Edit borrower{% else %}New borrower{% endif %}
+  </h1>
+
+  <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}<p class="text-xs text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endfor %}
+
+    <div class="flex justify-end gap-2 pt-2">
+      <a href="{% url 'borrowers:list' %}" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900">Cancel</a>
+      <button type="submit" class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2">
+        Save
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .input { width: 100%; border: 1px solid rgb(203 213 225); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+  .input:focus { outline: none; border-color: rgb(59 130 246); box-shadow: 0 0 0 2px rgb(191 219 254); }
+  form input[type=text], form input[type=number], form input[type=date], form select, form textarea {
+    width: 100%; border: 1px solid rgb(203 213 225); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  }
+</style>
+{% endblock %}

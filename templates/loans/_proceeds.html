@@ -1,0 +1,36 @@
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-6">
+  <h2 class="text-sm font-semibold text-blue-900 uppercase tracking-wide mb-4">Computed</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+    <div>
+      <p class="text-blue-700">Loan amount</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ amount|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">− Advance interest</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ advance|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">− Fees</p>
+      <p class="text-lg font-semibold text-blue-900">₱{{ fees|floatformat:2 }}</p>
+    </div>
+    <div class="border-l border-blue-200 pl-4">
+      <p class="text-blue-700">Net proceeds</p>
+      <p class="text-xl font-bold text-blue-900">₱{{ net|floatformat:2 }}</p>
+    </div>
+  </div>
+
+  <div class="mt-5 pt-5 border-t border-blue-200 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+    <div>
+      <p class="text-blue-700">Total interest</p>
+      <p class="font-semibold text-blue-900">₱{{ interest_total|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">Total repayable</p>
+      <p class="font-semibold text-blue-900">₱{{ total_repayable|floatformat:2 }}</p>
+    </div>
+    <div>
+      <p class="text-blue-700">Monthly installment</p>
+      <p class="font-semibold text-blue-900">₱{{ monthly|floatformat:2 }}</p>
+    </div>
+  </div>
+</div>
