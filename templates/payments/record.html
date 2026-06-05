@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Record payment · LoanDesk{% endblock %}
+
+{% block content %}
+{% include "_messages.html" %}
+
+<div class="max-w-xl">
+  <h1 class="text-2xl font-semibold text-slate-900 mb-2">Record payment</h1>
+  <p class="text-sm text-slate-500 mb-6">
+    Loan #{{ loan.pk }} · {{ loan.borrower.name }} · Outstanding
+    <span class="font-medium text-slate-900">₱{{ loan.outstanding_balance|floatformat:2 }}</span>
+  </p>
+
+  <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+    {% csrf_token %}
+    <div>
+      <label for="{{ form.date_paid.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">Date paid</label>
+      {{ form.date_paid }}
+      {% if form.date_paid.errors %}<p class="text-xs text-red-600 mt-1">{{ form.date_paid.errors|join:", " }}</p>{% endif %}
+    </div>
+    <div>
+      <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">Amount (₱)</label>
+      {{ form.amount }}
+      {% if form.amount.errors %}<p class="text-xs text-red-600 mt-1">{{ form.amount.errors|join:", " }}</p>{% endif %}
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2">
+      <a href="{% url 'loans:detail' loan.pk %}" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900">Cancel</a>
+      <button type="submit" class="rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2">
+        Record payment
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+  form input[type=text], form input[type=number], form input[type=date] {
+    width: 100%; border: 1px solid rgb(203 213 225); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+  }
+  form input:focus { outline: none; border-color: rgb(59 130 246); box-shadow: 0 0 0 2px rgb(191 219 254); }
+</style>
+{% endblock %}

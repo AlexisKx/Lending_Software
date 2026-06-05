@@ -2,8 +2,40 @@
 {% block title %}Payments · LoanDesk{% endblock %}
 
 {% block content %}
+{% include "_messages.html" %}
+
 <h1 class="text-2xl font-semibold text-slate-900 mb-6">Payments</h1>
-<div class="bg-white border border-slate-200 rounded-xl p-10 text-center text-slate-500">
-  Payment list arrives in phase 3.
+
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 text-slate-600 text-left">
+      <tr>
+        <th class="px-4 py-3 font-medium">Date</th>
+        <th class="px-4 py-3 font-medium">Borrower</th>
+        <th class="px-4 py-3 font-medium">Loan</th>
+        <th class="px-4 py-3 font-medium text-right">Amount</th>
+        <th class="px-4 py-3 font-medium text-right">Balance after</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for p in payments %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">{{ p.date_paid|date:"M j, Y" }}</td>
+        <td class="px-4 py-3">
+          <a href="{% url 'borrowers:detail' p.loan.borrower.pk %}" class="text-blue-600 hover:underline">
+            {{ p.loan.borrower.name }}
+          </a>
+        </td>
+        <td class="px-4 py-3">
+          <a href="{% url 'loans:detail' p.loan.pk %}" class="text-blue-600 hover:underline">#{{ p.loan.pk }}</a>
+        </td>
+        <td class="px-4 py-3 text-right font-medium">₱{{ p.amount|floatformat:2 }}</td>
+        <td class="px-4 py-3 text-right text-slate-600">₱{{ p.balance_after|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">No payments yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
