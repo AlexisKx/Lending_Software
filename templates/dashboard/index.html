@@ -4,8 +4,66 @@
 {% block content %}
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-semibold text-slate-900">Dashboard</h1>
+  <form id="period-form" hx-get="{% url 'dashboard:index' %}" hx-target="#dashboard-panels"
+        hx-trigger="change from:select" hx-push-url="true">
+    <select name="period" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm">
+      {% for key, label in period_choices %}
+        <option value="{{ key }}" {% if period_key == key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
 </div>
-<div class="bg-white border border-slate-200 rounded-xl p-10 text-center text-slate-500">
-  Dashboard panels arrive in phase 4.
+
+<div id="dashboard-panels">
+  {% include "dashboard/_panels.html" %}
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  function renderCharts(monthly, status) {
+    const revBar = document.getElementById("revenueChart");
+    if (revBar && !revBar._chart) {
+      revBar._chart = new Chart(revBar, {
+        type: "bar",
+        data: {
+          labels: monthly.map(m => m.label),
+          datasets: [
+            { label: "Collected", data: monthly.map(m => m.collected), backgroundColor: "#378ADD" },
+            { label: "Interest earned", data: monthly.map(m => m.interest), backgroundColor: "#1D9E75" }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+    const donut = document.getElementById("statusChart");
+    if (donut && !donut._chart) {
+      donut._chart = new Chart(donut, {
+        type: "doughnut",
+        data: {
+          labels: ["Paid", "Active", "Overdue"],
+          datasets: [{
+            data: [status.paid, status.active, status.overdue],
+            backgroundColor: ["#1D9E75", "#378ADD", "#E24B4A"]
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const data = document.getElementById("chart-data");
+    if (data) renderCharts(JSON.parse(data.dataset.monthly), JSON.parse(data.dataset.status));
+  });
+
+  document.body.addEventListener("htmx:afterSwap", (e) => {
+    if (e.target.id === "dashboard-panels") {
+      const data = document.getElementById("chart-data");
+      if (data) {
+        document.querySelectorAll("canvas").forEach(c => { if (c._chart) { c._chart.destroy(); c._chart = null; } });
+        renderCharts(JSON.parse(data.dataset.monthly), JSON.parse(data.dataset.status));
+      }
+    }
+  });
+</script>
 {% endblock %}

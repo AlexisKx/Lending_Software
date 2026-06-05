@@ -1,0 +1,79 @@
+{% load json_data %}
+
+<span id="chart-data"
+      data-monthly='{{ monthly|jsondata }}'
+      data-status='{{ status|jsondata }}' class="hidden"></span>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <a href="{% url 'borrowers:list' %}" class="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Total borrowers</p>
+    <p class="text-3xl font-semibold text-slate-900 mt-1">{{ kpi.total_borrowers }}</p>
+    <p class="text-xs text-slate-500 mt-2">{{ kpi.active_borrowers }} active · {{ kpi.inactive_borrowers }} inactive</p>
+  </a>
+  <a href="{% url 'loans:list' %}?status=ACTIVE" class="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Active loans</p>
+    <p class="text-3xl font-semibold text-slate-900 mt-1">{{ kpi.active_loans }}</p>
+    <p class="text-xs text-slate-500 mt-2">Outstanding ₱{{ kpi.active_outstanding|floatformat:2 }}</p>
+  </a>
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <p class="text-xs text-slate-500 uppercase tracking-wide">Collection rate</p>
+    <p class="text-3xl font-semibold text-slate-900 mt-1">{{ kpi.collection_rate }}%</p>
+    <p class="text-xs text-slate-500 mt-2">₱{{ kpi.collected|floatformat:2 }} of ₱{{ kpi.expected|floatformat:2 }}</p>
+  </div>
+  <a href="{% url 'loans:list' %}?status=OVERDUE" class="bg-white border border-red-200 rounded-xl p-5 hover:border-red-300 transition">
+    <p class="text-xs text-red-600 uppercase tracking-wide">Overdue</p>
+    <p class="text-3xl font-semibold text-red-700 mt-1">{{ kpi.overdue_count }}</p>
+    <p class="text-xs text-red-600 mt-2">₱{{ kpi.overdue_amount|floatformat:2 }} outstanding</p>
+  </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+  <div class="bg-white border border-slate-200 rounded-xl p-5 lg:col-span-3">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Monthly revenue & interest</h2>
+    <div class="h-64"><canvas id="revenueChart"></canvas></div>
+  </div>
+  <div class="bg-white border border-slate-200 rounded-xl p-5 lg:col-span-2">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Paid vs unpaid</h2>
+    <div class="h-64"><canvas id="statusChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Overdue aging</h2>
+    {% with max_amt=aging|first %}
+    <div class="space-y-3">
+      {% for b in aging %}
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <span class="text-slate-700">{{ b.label }} days · {{ b.count }} loan(s)</span>
+          <span class="font-medium text-slate-900">₱{{ b.amount|floatformat:2 }}</span>
+        </div>
+        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full bg-red-500" style="width: {% if b.amount %}{% widthratio b.amount 1 1 %}%{% else %}0{% endif %}; max-width: 100%;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endwith %}
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">Recent activity</h2>
+    {% if activity %}
+    <ul class="divide-y divide-slate-100 text-sm">
+      {% for a in activity %}
+      <li class="py-2.5 flex items-start gap-3">
+        <span class="mt-1 w-2 h-2 rounded-full {% if a.kind == 'payment' %}bg-emerald-500{% else %}bg-blue-500{% endif %} flex-shrink-0"></span>
+        <div class="flex-1">
+          <a href="{{ a.url }}" class="text-slate-700 hover:text-slate-900">{{ a.text }}</a>
+          <p class="text-xs text-slate-400 mt-0.5">{{ a.when|date:"M j, Y · g:i A" }}</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-sm text-slate-400">No activity yet.</p>
+    {% endif %}
+  </div>
+</div>

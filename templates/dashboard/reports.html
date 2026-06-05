@@ -3,7 +3,23 @@
 
 {% block content %}
 <h1 class="text-2xl font-semibold text-slate-900 mb-6">Reports</h1>
-<div class="bg-white border border-slate-200 rounded-xl p-10 text-center text-slate-500">
-  Reports arrive in phase 4.
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-base font-semibold text-slate-900 mb-1">Loan release report</h2>
+    <p class="text-sm text-slate-500 mb-4">All loans with amount, advance interest, net proceeds, and status.</p>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'dashboard:export_loans' %}" class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2">All loans (CSV)</a>
+      <a href="{% url 'dashboard:export_loans' %}?status=ACTIVE" class="rounded-md border border-slate-300 hover:bg-slate-50 text-sm px-3 py-2">Active (CSV)</a>
+      <a href="{% url 'dashboard:export_loans' %}?status=OVERDUE" class="rounded-md border border-slate-300 hover:bg-slate-50 text-sm px-3 py-2">Overdue (CSV)</a>
+      <a href="{% url 'dashboard:export_loans' %}?status=PAID" class="rounded-md border border-slate-300 hover:bg-slate-50 text-sm px-3 py-2">Paid (CSV)</a>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 class="text-base font-semibold text-slate-900 mb-1">Payments report</h2>
+    <p class="text-sm text-slate-500 mb-4">All recorded payments with balances.</p>
+    <a href="{% url 'dashboard:export_payments' %}" class="rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 inline-block">Payments (CSV)</a>
+  </div>
 </div>
 {% endblock %}
