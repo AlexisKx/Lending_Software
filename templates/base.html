@@ -5,8 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}LoanDesk{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { revenue: "#378ADD", interest: "#1D9E75", overdue: "#E24B4A", warn: "#FAC775" }
+          }
+        }
+      }
+    };
+  </script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
-  {% block content %}{% endblock %}
+  {% if user.is_authenticated %}
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="{% url 'dashboard:index' %}" class="text-lg font-semibold text-slate-900">LoanDesk</a>
+        <nav class="flex items-center gap-1 text-sm">
+          {% with active=request.resolver_match.namespace %}
+          <a href="{% url 'dashboard:index' %}"
+             class="px-3 py-1.5 rounded-md {% if active == 'dashboard' and request.resolver_match.url_name == 'index' %}bg-slate-900 text-white{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+            Dashboard
+          </a>
+          <a href="{% url 'borrowers:list' %}"
+             class="px-3 py-1.5 rounded-md {% if active == 'borrowers' %}bg-slate-900 text-white{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+            Borrowers
+          </a>
+          <a href="{% url 'loans:list' %}"
+             class="px-3 py-1.5 rounded-md {% if active == 'loans' %}bg-slate-900 text-white{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+            Loans
+          </a>
+          <a href="{% url 'payments:list' %}"
+             class="px-3 py-1.5 rounded-md {% if active == 'payments' %}bg-slate-900 text-white{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+            Payments
+          </a>
+          <a href="{% url 'dashboard:reports' %}"
+             class="px-3 py-1.5 rounded-md {% if active == 'dashboard' and request.resolver_match.url_name == 'reports' %}bg-slate-900 text-white{% else %}text-slate-600 hover:text-slate-900 hover:bg-slate-100{% endif %}">
+            Reports
+          </a>
+          {% endwith %}
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-sm font-medium">
+          {{ user.username|slice:":1"|upper }}
+        </div>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-sm text-slate-500 hover:text-slate-900">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="{% block main_class %}max-w-7xl mx-auto px-6 py-8{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

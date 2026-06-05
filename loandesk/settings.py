@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "borrowers",
+    "loans",
+    "payments",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -122,5 +126,5 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "dashboard:index"
 LOGOUT_REDIRECT_URL = "login"
